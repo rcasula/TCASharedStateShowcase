@@ -128,5 +128,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .defaultAppStorage(.init(suiteName: "test.suite")!)
 }
