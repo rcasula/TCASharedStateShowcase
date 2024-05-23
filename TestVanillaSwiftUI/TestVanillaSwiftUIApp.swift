@@ -12,7 +12,7 @@ struct TestVanillaSwiftUIApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .defaultAppStorage(.init(suiteName: "group.test.suite")!)
+                .defaultAppStorage(.init(suiteName: "group.${DEVELOPMENT_TEAM}.showcase")!)
         }
     }
 }

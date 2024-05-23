@@ -9,10 +9,10 @@ import ComposableArchitecture
 import SwiftUI
 
 @Reducer
-public struct Child {
+struct Child {
     
     @ObservableState
-    public struct State: Equatable {
+    struct State: Equatable {
         let title: String
         
         @Presents var destination: Destination.State?
@@ -24,23 +24,23 @@ public struct Child {
     }
     
     @Reducer(state: .equatable, action: .equatable)
-    public enum Destination {
+    enum Destination {
         case settings(Settings)
     }
     
-    public enum Action: Equatable, ViewAction, BindableAction {
+    enum Action: Equatable, ViewAction, BindableAction {
     
         case view(View)
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
         
-        public enum View: Equatable {
+        enum View: Equatable {
             case task
             case showSettings
         }
     }
     
-    public var body: some ReducerOf<Self> {
+    var body: some ReducerOf<Self> {
         CombineReducers {
             BindingReducer()
             
@@ -61,7 +61,7 @@ public struct Child {
         .ifLet(\.$destination, action: \.destination)
     }
     
-    public init() {}
+    init() {}
 }
 
 @ViewAction(for: Child.self)
@@ -111,10 +111,10 @@ extension UserSettings.General.OpeningTab {
 }
 
 @Reducer
-public struct Home {
+struct Home {
     
     @ObservableState
-    public struct State: Equatable {
+    struct State: Equatable {
         
         enum Tab: Int, CaseIterable {
             case train
@@ -156,14 +156,14 @@ public struct Home {
         }
     }
     
-    public enum Action: Equatable, BindableAction {
+    enum Action: Equatable, BindableAction {
         case binding(BindingAction<State>)
         case train(Child.Action)
         case map(Child.Action)
         case bus(Child.Action)
     }
     
-    public var body: some ReducerOf<Self> {
+    var body: some ReducerOf<Self> {
         CombineReducers {
             BindingReducer()
             
@@ -192,7 +192,7 @@ public struct Home {
         }
     }
     
-    public init() {}
+    init() {}
 }
 
 struct ContentView: View {
@@ -221,3 +221,4 @@ struct ContentView: View {
         }
     )
 }
+

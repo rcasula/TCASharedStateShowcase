@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 @Reducer
-public struct Settings {
+struct Settings {
     
     @ObservableState
     public struct State: Equatable {
@@ -18,38 +18,57 @@ public struct Settings {
         @Shared(.settings) var settings
         @Shared(.appStorage("refreshRate")) var refreshRate: Double?
         
+        var third: Third.State = .init()
+        
+        var path: StackState<Path.State> = StackState()
+        
         init() {
         }
     }
     
-    public enum Action: Equatable, ViewAction, BindableAction {
-        
+    @Reducer(state: .equatable, action: .equatable)
+    enum Path {
+        case third(Third)
+    }
+    
+    enum Action: Equatable, ViewAction, BindableAction {
+        case third(Third.Action)
         case view(View)
         case binding(BindingAction<State>)
+        case path(StackActionOf<Path>)
         
         public enum View: Equatable {
             case task
         }
     }
     
-    public var body: some ReducerOf<Self> {
+    var body: some ReducerOf<Self> {
         CombineReducers {
             BindingReducer()
             
             Reduce { state, action in
                 switch action {
+                case .third:
+                    return .none
                 case .view(.task):
                     return .none
                 case .binding:
                     return .none
+                case .path:
+                    return .none
                 }
             }
         }
+        .forEach(\.path, action: \.path)
         .onChange(of: \.settings.general.refreshRate) { oldValue, newValue in
             Reduce { state, _ in
                 state.refreshRate = newValue.timeInterval
                 return .none
             }
+        }
+        
+        Scope(state: \.third, action: \.third) {
+            Third()
         }
     }
     
@@ -60,7 +79,7 @@ struct SettingsView: View {
     @Bindable var store: StoreOf<Settings>
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             Form {
                 Picker(selection: $store.settings.general.refreshRate) {
                     ForEach(UserSettings.General.RealtimeRefreshRate.allCases, id: \.self) { refreshRate in
@@ -85,27 +104,19 @@ struct SettingsView: View {
                     Text("[Settings] Map only")
                 }
                 
-                NavigationLink("Second view") {
-                    SecondView()
-                }
                 NavigationLink("Third view") {
-                    ThirdView(store: .init(initialState: .init()) { Third() })
+                    ThirdView(store: store.scope(state: \.third, action: \.third))
+                }
+                NavigationLink(state: Settings.Path.State.third(.init())) {
+                    Text("Third view with navigation state")
                 }
             }
+        } destination: { store in
+            switch store.case {
+            case .third(let store):
+                ThirdView(store: store)
+            }
         }
-    }
-}
-
-struct SecondView: View {
-    @SharedReader(.settings) var settings
-    @SharedReader(.appStorage("refreshRate")) var refreshRate: Double?
-    var body: some View {
-        Text(settings.general.refreshRate.timeInterval.debugDescription)
-        Text("\(settings.general.openingTab)")
-        
-        Text(refreshRate.debugDescription)
-        
-        Text(settings.developer.isMapOnlyModeEnabled.description)
     }
 }
 

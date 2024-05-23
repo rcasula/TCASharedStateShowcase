@@ -13,7 +13,10 @@ struct TCASharedState_ShowcaseApp: App {
     let store = Store(initialState: .init()) {
         Home()
     } withDependencies: {
-        $0.defaultAppStorage = UserDefaults(suiteName: "group.dev.casula.TCA.SharedStateShowcase")!
+//        $0.defaultAppStorage = UserDefaults(
+//            suiteName: "group.${DEVELOPMENT_TEAM}}.showcase"
+//        )!
+        $0.defaultAppStorage = .mySuite
 //        $0.defaultAppStorage = .standard
     }
     
@@ -22,4 +25,10 @@ struct TCASharedState_ShowcaseApp: App {
             ContentView(store: store)
         }
     }
+}
+
+extension UserDefaults {
+  static let mySuite = UserDefaults(
+    suiteName: "group.${DEVELOPMENT_TEAM}}.showcase"
+  )!
 }
